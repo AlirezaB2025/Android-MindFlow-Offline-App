@@ -25,18 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.example.mindflow_offline_app.data.db.TestResult
+import com.example.mindflow_offline_app.data.model.ChartItemModel
 import com.example.mindflow_offline_app.data.model.Mood
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.max
-
-private data class ChartItem(
-    val value: Float,
-    val label: String,
-    val statusText: String,
-    val color: Color
-)
 
 @Composable
 fun DashboardChart(
@@ -65,7 +59,7 @@ fun DashboardChart(
                 else -> Color(0xFF1565C0)
             }
 
-            ChartItem(
+            ChartItemModel(
                 value = value,
                 label = formatDate(it.date),
                 statusText = it.moodType,
@@ -77,23 +71,29 @@ fun DashboardChart(
         .sortedBy { it.id }
         .takeLast(30)
         .mapIndexed { index, result ->
+            val questionCount = testResults.size
+            val maxOptionScore = 3
+            val maxScore = questionCount * maxOptionScore
+            val score = result.score
+            val scorePercent = if (maxScore > 0) score.toFloat() / maxScore else 0f
+
             val status = when {
-                result.score >= 80 -> "خیلی خوب"
-                result.score >= 60 -> "خوب"
-                result.score >= 40 -> "متوسط"
-                result.score >= 20 -> "ضعیف"
+                scorePercent >= 0.80f -> "عالی"
+                scorePercent >= 0.60f -> "خوب"
+                scorePercent >= 0.40f -> "متوسط"
+                scorePercent >= 0.20f -> "ضعیف"
                 else -> "خیلی ضعیف"
             }
 
             val color = when {
-                result.score >= 80 -> Color(0xFF2E7D32)
-                result.score >= 60 -> Color(0xFF558B2F)
-                result.score >= 40 -> Color(0xFFF9A825)
-                result.score >= 20 -> Color(0xFFEF6C00)
+                scorePercent >= 0.80f -> Color(0xFF2E7D32)
+                scorePercent >= 0.60f -> Color(0xFF558B2F)
+                scorePercent >= 0.40f -> Color(0xFFF9A825)
+                scorePercent >= 0.20f -> Color(0xFFEF6C00)
                 else -> Color(0xFFC62828)
             }
 
-            ChartItem(
+            ChartItemModel(
                 value = result.score.toFloat(),
                 label = "تست ${index + 1}",
                 statusText = "$status (${result.score})",
@@ -102,10 +102,15 @@ fun DashboardChart(
         }
 
     val items = if (selectedTab == "mood") moodItems else testItems
+
+    val yLabelsPercentages = listOf(0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f)
+
     val yLabels = if (selectedTab == "mood") {
         listOf("1", "2", "3", "4", "5")
     } else {
-        listOf("0", "25", "50", "75", "100")
+        yLabelsPercentages.map { percentage ->
+            String.format(Locale.getDefault(),"%.0f%%", percentage * 100)
+        }
     }
 
     Card(
@@ -174,7 +179,9 @@ fun DashboardChart(
                 return@Column
             }
 
-            val maxValue = if (selectedTab == "mood") 5f else max(100f, items.maxOf { it.value })
+            val maxValue = if (selectedTab == "mood") 5f else max(
+                testItems.size.div(3f),
+                items.maxOf { it.value })
 
             Row(
                 modifier = Modifier.fillMaxWidth()

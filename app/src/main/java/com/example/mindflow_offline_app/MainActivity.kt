@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        setActionBar(null)
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 MindFlowTheme {
@@ -71,8 +72,8 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("mentalHealthTest") {
                             MentalHealthTestScreen(
-                                onTestComplete = { score ->
-                                    navController.navigate("mentalHealthResult/$score") {
+                                onTestComplete = { size,score ->
+                                    navController.navigate("mentalHealthResult/$size/$score") {
                                         popUpTo("mentalHealthTest") { inclusive = true }
                                     }
                                 },
@@ -80,11 +81,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            "mentalHealthResult/{score}",
+                            "mentalHealthResult/{size}/{score}",
                             arguments = listOf(navArgument("score") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val score = backStackEntry.arguments?.getInt("score") ?: 0
-                            MentalHealthTestResultScreen(score = score) {
+                            val size = backStackEntry.arguments?.getInt("size") ?: 0
+                            MentalHealthTestResultScreen(testResultsSize = size, score = score) {
                                 navController.navigate("dashboard") {
                                     popUpTo("dashboard") { inclusive = false }
                                 }

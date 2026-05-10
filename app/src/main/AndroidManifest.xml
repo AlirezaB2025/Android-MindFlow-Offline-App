@@ -10,6 +10,7 @@
         android:maxSdkVersion="32" />
 
     <application
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:name=".MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

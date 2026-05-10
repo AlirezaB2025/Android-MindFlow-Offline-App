@@ -18,15 +18,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mindflow_offline_app.data.model.TestResultModel
 import com.example.mindflow_offline_app.ui.theme.*
 
 @Composable
-fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
+fun MentalHealthTestResultScreen(testResultsSize:Int,score: Int, onDone: () -> Unit) {
+    val questionCount = testResultsSize
+    val maxScore = questionCount * 3
+    val scorePercent = if (maxScore > 0) score.toFloat() / maxScore else 0f
     val (statusText, statusColor, statusIcon, description, recommendations) = when {
-        score < 10 -> TestResult(
+        scorePercent >= 0.80f -> TestResultModel(
             "عالی",
             MoodExcellent,
             Icons.Default.SentimentVerySatisfied,
@@ -38,7 +41,7 @@ fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
                 "از لحظات خوب لذت ببرید"
             )
         )
-        score < 20 -> TestResult(
+        scorePercent >= 0.60f -> TestResultModel(
             "خوب",
             MoodGood,
             Icons.Default.SentimentSatisfied,
@@ -50,7 +53,7 @@ fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
                 "تمرینات تنفسی انجام دهید"
             )
         )
-        score < 30 -> TestResult(
+        scorePercent >= 0.40f -> TestResultModel(
             "متوسط",
             MoodNormal,
             Icons.Default.SentimentNeutral,
@@ -62,7 +65,7 @@ fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
                 "با افراد مورد اعتماد صحبت کنید"
             )
         )
-        score < 40 -> TestResult(
+        scorePercent >= 0.20f -> TestResultModel(
             "نیاز به توجه",
             MoodBad,
             Icons.Default.SentimentDissatisfied,
@@ -74,7 +77,7 @@ fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
                 "فعالیت بدنی منظم داشته باشید"
             )
         )
-        else -> TestResult(
+        else -> TestResultModel(
             "نیاز به مشاوره",
             MoodVeryBad,
             Icons.Default.SentimentVeryDissatisfied,
@@ -279,11 +282,3 @@ fun MentalHealthTestResultScreen(score: Int, onDone: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-
-data class TestResult(
-    val status: String,
-    val color: Color,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val description: String,
-    val recommendations: List<String>
-)

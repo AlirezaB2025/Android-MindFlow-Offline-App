@@ -30,7 +30,7 @@ import com.example.mindflow_offline_app.viewmodel.TestHistoryViewModel
 fun MentalHealthTestScreen(
     testViewModel: MentalHealthTestViewModel = hiltViewModel(),
     testHistoryViewModel: TestHistoryViewModel = hiltViewModel(),
-    onTestComplete: (score: Int) -> Unit,
+    onTestComplete: (testSize:Int,score: Int) -> Unit,
     onBack: () -> Unit
 ) {
     val currentIndex by testViewModel.currentQuestionIndex.collectAsState()
@@ -246,7 +246,7 @@ fun MentalHealthTestScreen(
                             onClick = {
                                 val score = testViewModel.calculateScore()
                                 testHistoryViewModel.addResult(score)
-                                onTestComplete(score)
+                                onTestComplete(testViewModel.totalQuestions,score)
                             },
                             modifier = Modifier
                                 .weight(1f)
